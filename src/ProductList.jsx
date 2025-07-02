@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './ProductList.css'
 import CartItem from './CartItem';
+import { useDispatch } from 'react-redux';
+import { addItem } from './CartSlice';
 function ProductList({ onHomeClick }) {
     const [showCart, setShowCart] = useState(false);
     const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
+const dispatch = useDispatch();
+const [addedToCart, setAddedToCart] = useState({});
 
     const plantsArray = [
         {
@@ -252,6 +256,15 @@ function ProductList({ onHomeClick }) {
         e.preventDefault();
         setShowCart(false);
     };
+
+    const handleAddToCart = (product) => {
+  dispatch(addItem(product));
+  setAddedToCart((prevState) => ({
+    ...prevState,
+    [product.name]: true,
+  }));
+};
+
     return (
         <div>
             <div className="navbar" style={styleObj}>
@@ -274,9 +287,31 @@ function ProductList({ onHomeClick }) {
             </div>
             {!showCart ? (
                 <div className="product-grid">
+     {plantsArray.map((category, index) => (
+        <div key={index}>
+            <h2>{category.category}</h2>
+            <div className="plant-category">
+                {category.plants.map((plant, i) => (
+                    <div className="plant-card" key={i}>
+    <h3>{plant.name}</h3>
+    <img src={plant.image} alt={plant.name} width="200" />
+    <p>{plant.description}</p>
+    <p><strong>{plant.cost}</strong></p>
+    <button
+        className="add-to-cart-button"
+        onClick={() => handleAddToCart(plant)}
+        disabled={!!addedToCart[plant.name]}
+    >
+        {addedToCart[plant.name] ? "Added" : "Add to Cart"}
+    </button>
+</div>
 
+                ))}
+            </div>
+        </div>
+    ))}
+</div>
 
-                </div>
             ) : (
                 <CartItem onContinueShopping={handleContinueShopping} />
             )}
